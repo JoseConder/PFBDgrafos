@@ -7,15 +7,15 @@ if __name__ == "__main__":
     password = '12345678'
 
     crud = CRUD(uri, user, password)
-    '''
-    crud.delete_all()
-    crud.see_all_D()
-    crud.see_all_E()
-    crud.insert_scott_D()
-    crud.insert_scott_E()
-    crud.see_all_D()
-    crud.see_all_E()
-    '''
+    
+    #crud.delete_all()
+    #crud.see_all_D()
+    #crud.see_all_E()
+    #crud.insert_scott_D()
+    #crud.insert_scott_E()
+    #crud.see_all_D()
+    #crud.see_all_E()
+    
 
 
     app = MainApplication(root, crud)

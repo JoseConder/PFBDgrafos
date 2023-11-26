@@ -1,3 +1,4 @@
+from datetime import datetime
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
@@ -297,6 +298,11 @@ class AddEmployeePopup:
             sal = float(self.sal_entry.get())
             comm = float(self.comm_entry.get()) if self.comm_entry.get() else None
             dept_no = int(self.deptno_entry.get())
+            
+            #Verificar el mgr
+            if mgr is not None and not self.crud.read_employee(mgr):
+                messagebox.showerror("Error", f"No se puede agregar el empleado porque el manager con ID {mgr} no existe.")
+                return
 
             # Verifica si el departamento existe antes de realizar la acción
             result = self.crud._driver.session().run("MATCH (d:Department {dept_no: $dept_no}) RETURN COUNT(d) AS deptCount", dept_no=dept_no)
@@ -380,6 +386,11 @@ class UpdateEmployeePopup:
             comm = float(self.comm_entry.get()) if self.comm_entry.get() else None
             dept_no = int(self.deptno_entry.get())
 
+            # Verificar si el mgr especificado existe
+            if mgr is not None and not self.crud.read_employee(mgr):
+                messagebox.showerror("Error", f"No se puede actualizar el empleado porque el manager con ID {mgr} no existe.")
+                return
+            
             # Verifica si el departamento existe antes de realizar la acción
             result = self.crud._driver.session().run("MATCH (d:Department {dept_no: $dept_no}) RETURN COUNT(d) AS deptCount", dept_no=dept_no)
             dept_count = result.single()['deptCount']
