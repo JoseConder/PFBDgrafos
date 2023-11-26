@@ -528,13 +528,18 @@ class AddEmployeePopup:
             comm = float(self.comm_entry.get()) if self.comm_entry.get() else None
             dept_no = int(self.deptno_entry.get())
 
-            # Valida que los campos requeridos no estén vacíos
-            if not all([emp_no, ename, job, hire_date, sal, dept_no]):
-                raise ValueError("Todos los campos, excepto Manager y Comisión, son obligatorios.")
+            # Verifica si el departamento existe antes de realizar la acción
+            result = self.crud._driver.session().run("MATCH (d:Department {dept_no: $dept_no}) RETURN COUNT(d) AS deptCount", dept_no=dept_no)
+            dept_count = result.single()['deptCount']
 
-            self.crud.create_employee(emp_no, ename, job, mgr, hire_date, sal, comm, dept_no)
-            self.refresh_callback()  # Actualiza la lista en la interfaz principal
-            self.top.destroy()
+            if dept_count == 0:
+                # El departamento no existe, se deniega la acción
+                messagebox.showerror("Error", f"No se puede agregar el empleado porque el departamento {dept_no} no existe.")
+            else:
+                # Llamada al CRUD para agregar empleado
+                self.crud.create_employee(emp_no, ename, job, mgr, hire_date, sal, comm, dept_no)
+                self.refresh_callback()  # Actualiza la lista en la interfaz principal
+                self.top.destroy()
         except ValueError as e:
             messagebox.showerror("Error", f"Error al agregar empleado: {e}")
 
@@ -605,12 +610,21 @@ class UpdateEmployeePopup:
             comm = float(self.comm_entry.get()) if self.comm_entry.get() else None
             dept_no = int(self.deptno_entry.get())
 
-            # Llamada al CRUD para actualizar
-            self.crud.update_employee(self.emp_no, ename, job, mgr, hire_date, sal, comm, dept_no)
-            self.refresh_callback()
-            self.top.destroy()
+            # Verifica si el departamento existe antes de realizar la acción
+            result = self.crud._driver.session().run("MATCH (d:Department {dept_no: $dept_no}) RETURN COUNT(d) AS deptCount", dept_no=dept_no)
+            dept_count = result.single()['deptCount']
+
+            if dept_count == 0:
+                # El departamento no existe, se deniega la acción
+                messagebox.showerror("Error", f"No se puede actualizar el empleado porque el departamento {dept_no} no existe.")
+            else:
+                # Llamada al CRUD para actualizar
+                self.crud.update_employee(self.emp_no, ename, job, mgr, hire_date, sal, comm, dept_no)
+                self.refresh_callback()
+                self.top.destroy()
         except ValueError as e:
             messagebox.showerror("Error", f"Error al actualizar empleado: {e}")
+
 
 
 
@@ -623,6 +637,7 @@ if __name__ == "__main__":
     password = '12345678'
 
     crud = CRUD(uri, user, password)
+    '''
     crud.delete_all()
     crud.see_all_D()
     crud.see_all_E()
@@ -630,7 +645,7 @@ if __name__ == "__main__":
     crud.insert_scott_E()
     crud.see_all_D()
     crud.see_all_E()
-    
+    '''
 
 
     app = MainApplication(root, crud)
